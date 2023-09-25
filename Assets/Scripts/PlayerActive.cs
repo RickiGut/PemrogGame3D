@@ -7,6 +7,7 @@ public class PlayerActive : MonoBehaviour
     public StateUnit State;
     public float Speed = 10f;
     public bool IsDash;
+    public bool IsWalk;
 
     public enum StateUnit
     {
@@ -27,11 +28,19 @@ public class PlayerActive : MonoBehaviour
         }
         else
         {
-            Run();
-            if (IsDash)
+            if (IsWalk)
             {
-                Dash();
+                Walk();
             }
+            else
+            {
+                Run();
+                if (IsDash)
+                {
+                    Dash();
+                }
+            }
+           
             body.Move(MoveDirect * Speed * Time.deltaTime);
         }
     }     
@@ -41,6 +50,12 @@ public class PlayerActive : MonoBehaviour
         State = StateUnit.Idle;
         Speed = 0f;
         //body.Move(InputActive.Instance.MoveDirect * Time.deltaTime * Speed);
+    }
+
+    private void Walk()
+    {
+        State = StateUnit.Idle;
+        Speed = 5f / 2f;
     }
 
     private void Run()
@@ -55,8 +70,15 @@ public class PlayerActive : MonoBehaviour
 
     private void Dash()
     {
+        StartCoroutine(DashCouroutine());
+    }
+
+    private IEnumerator DashCouroutine()
+    {
         State = StateUnit.Dash;
         Speed = 5f * 3f;
+        yield return new WaitForSeconds(0.25f);
+        IsDash = false;
     }
 
     private void Jump()
